@@ -5,11 +5,15 @@ import time
 from netifaces import interfaces, ifaddresses, AF_INET
 
 addresses = [i['addr'] for i in ifaddresses("eth0").setdefault(AF_INET, [{'addr':'No IP addr'}] )]
-IP_address=addresses[0]
+ipAddress=addresses[0]
+sprinklerId=1
 
-myParameters = { "IP address" : IP_address}
-myURL = "http://artiswrong.com/tinyPipes?%s" % urllib.urlencode(myParameters)
-
+myURL = "http://valve.tinyPipes.net/heartbeat/%s/" % (sprinklerId)
+print myURL
 while(True):
-    urllib2.urlopen(myURL).read()
-    time.sleep(60)
+#    urllib2.urlopen(myURL).read()
+    try:
+        print urllib2.urlopen(myURL).read()
+    except:
+        print "well, something happened"
+    time.sleep(5)
