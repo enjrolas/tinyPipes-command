@@ -188,8 +188,27 @@ if  __debug__:
     print("GSM module found! Connection established.")
 
 listAllMessages()
+
+'''database-specific info is stored in a separate file called 'db'.  The file stores the host, 
+the port, the user, password and database.  The values are separated
+from the names by a colon, as follows:
+host: buckaroobonzai.cc
+port: 3306
+user: jonBigBootay
+password: ssshSecretDontTellAnyone
+db: hongKongCavaliers
+'''
+
+f=open('db','r')
+lines = f.readlines()
+host=lines[0].split(':')[1].strip()
+port=int(lines[1].split(':')[1].strip())
+user=lines[2].split(':')[1].strip()
+password=lines[3].split(':')[1].strip()
+database=lines[4].split(':')[1].strip()
+
 print("connecting to database....")
-spfdb = MySQLdb.connect(host="tinypipes.net",port=3306,user="sprinkler",passwd="77T88xysCtYGH7FS",db="tinyPipes")
+spfdb = MySQLdb.connect(host=host,port=port,user=user,passwd=password,db=database)
 print("connected!  Having a look around..")
 cur = spfdb.cursor()
 cur.execute("show tables")

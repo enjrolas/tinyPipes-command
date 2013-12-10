@@ -33,3 +33,9 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+
+#emacs autosave files
+*~
+
+#don't commit the file with the db login info
+db

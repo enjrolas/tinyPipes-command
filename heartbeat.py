@@ -6,7 +6,7 @@ from netifaces import interfaces, ifaddresses, AF_INET
 
 addresses = [i['addr'] for i in ifaddresses("eth0").setdefault(AF_INET, [{'addr':'No IP addr'}] )]
 ipAddress=addresses[0]
-sprinklerId=1
+sprinklerId=2
 
 myURL = "http://valve.tinyPipes.net/heartbeat/%s/" % (sprinklerId)
 print myURL
