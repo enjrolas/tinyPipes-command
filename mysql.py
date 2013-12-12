@@ -127,19 +127,16 @@ def flushReceiveBuffer():
 
 
 def getPhoneNumber():
-    if  __debug__:
-        ser.write("AT+CNUM\r\n")
-        time.sleep(1)
-        number=""
-        while ser.inWaiting()>0:
-            line=readLine().strip()
-            print line
-            if line.find("+CNUM:")!=-1:
-                number=line[find_nth(line, ",", 1)+1: find_nth(line, ",", 2)]
-                number=number.replace('"', '')
-    else:
-        number="+639471782972"
-    print number
+    ser.write("AT+CNUM\r\n")
+    time.sleep(1)
+    number=""
+    while ser.inWaiting()>0:
+        line=readLine().strip()
+        print line
+        if line.find("+CNUM:")!=-1:
+            number=line[find_nth(line, ",", 1)+1: find_nth(line, ",", 2)]
+            number=number.replace('"', '')
+            print number
     return number
 
 def getSprinklerId(number):
@@ -160,28 +157,22 @@ def pullCommands():
     print("checking database")
     with spfdb:
         cur = spfdb.cursor()
-        cur.execute("SELECT p.* , s.* FROM  `communications_spray` s INNER JOIN `pipe_pipe` p ON s.destination_id = p.id where sent=\"0\"")
+        cur.execute("select * from communications_spray where sent=\"0\"")
         try:
             row = fetchoneDict(cur)
             print row
             id=row['id']
-            to=row['phoneNumber']
+            to=row['destination_id'] 
+            cur.execute("select * from communications_spray where sent=\"0\"")
             message=row['content']
-            if __debug__:
-                textMessage(to, message)
+            
+            textMessage(to, message)
             str = "UPDATE communications_spray set sent=\"1\" where id='%s'" % id
             cur.execute(str)
             
         except Exception as e:   
             print e
             print "no pending commands"
-
-def heartbeat():
-    try:
-        print urllib2.urlopen(myURL).read()
-    except:
-        print "well, something happened"
-
 
 
 ser = None
@@ -198,7 +189,7 @@ if  __debug__:
             sys.exit()
     print("GSM module found! Connection established.")
 
-    listAllMessages()
+listAllMessages()
 
 '''database-specific info is stored in a separate file called 'db'.  The file stores the host, 
 the port, the user, password and database.  The values are separated
@@ -227,13 +218,10 @@ results=cur.fetchall()
 for table in results:
     print table
 
-if  __debug__:
-    checkResponse(1)
-    flushReceiveBuffer()
+checkResponse(1)
+flushReceiveBuffer()
 sprinklerPhoneNumber=getPhoneNumber()
 sprinklerId=getSprinklerId(sprinklerPhoneNumber)
-myURL = "http://valve.tinyPipes.net/heartbeat/%s/" % (sprinklerId)
-print myURL
 
 try:    
     print "sprinker phone number:  %s" % sprinklerPhoneNumber
@@ -242,15 +230,12 @@ try:
         print("initialized and ready to go")
 
     while(True):
-        heartbeat()
         pullCommands()
-        if  __debug__:
-            checkResponse(1)        
-            messages=checkMessages()
-            for message in messages:
-                print message[1]
-                addMessage(sprinklerId, message[1], message[2])
-        else:
-            time.sleep(1)
+        checkResponse(1)
+        messages=checkMessages()
+        for message in messages:
+            print message[1]
+            addMessage(sprinklerId, message[1], message[2])
+            
 except KeyboardInterrupt:
     print "see ya"
